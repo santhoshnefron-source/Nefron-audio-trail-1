@@ -209,16 +209,16 @@ export function ChatInterface({ chatId, userId, onNewChat }: ChatInterfaceProps)
           let stream;
           try {
             stream = await ai.models.generateContentStream({
-              model: 'gemini-2.5-flash',
+              model: 'gemini-3.1-flash-lite',
               contents: [{ role: 'user', parts: [{ text: "Write exactly 2 short sentences introducing yourself to a high-stakes investor as the Nefron Audio Strategic AI. Do not use quotes. This is a brand new chat session, so be extremely unique and varied in this opening compared to standard greetings. Focus on either the electro-mechanical technology, the $10B market potential, or Santhosh's visionary design." }] }],
               config: { 
                 systemInstruction: `You are Nefron Audio AI. Write a distinct, high-impact opening. Focus on either the electro-mechanical technology, the $10B market potential, or Santhosh's visionary design. Never repeat the same opening template.` 
               }
             });
           } catch (modelErr) {
-            console.warn("Primary model busy for greeting, falling back to 3.8-flash:", modelErr);
+            console.warn("Primary model busy for greeting, falling back to 2.5-flash:", modelErr);
             stream = await ai.models.generateContentStream({
-              model: 'gemini-3.8-flash',
+              model: 'gemini-2.5-flash',
               contents: [{ role: 'user', parts: [{ text: "Write exactly 2 short sentences introducing yourself to a high-stakes investor as the Nefron Audio Strategic AI. Do not use quotes. This is a brand new chat session, so be extremely unique and varied in this opening compared to standard greetings. Focus on either the electro-mechanical technology, the $10B market potential, or Santhosh's visionary design." }] }],
               config: { 
                 systemInstruction: `You are Nefron Audio AI. Write a distinct, high-impact opening. Focus on either the electro-mechanical technology, the $10B market potential, or Santhosh's visionary design. Never repeat the same opening template.` 
@@ -235,7 +235,7 @@ export function ChatInterface({ chatId, userId, onNewChat }: ChatInterfaceProps)
           
           try {
             const followUpsGen = await ai.models.generateContent({
-               model: 'gemini-2.5-flash',
+               model: 'gemini-3.1-flash-lite',
                contents: [{ role: 'user', parts: [{ text: `Based on this assistant response: "${fullResponse}", suggest 3 short, relevant follow-up questions the user could ask next. Return ONLY a JSON array of objects with 'label' (very short 2-4 word summary with a relevant emoji at the start) and 'text' (the full question). Example: [{"label": "💰 Financial Model", "text": "Can you explain the ROI?"}]` }] }],
                config: {
                  responseMimeType: 'application/json'
@@ -342,7 +342,7 @@ export function ChatInterface({ chatId, userId, onNewChat }: ChatInterfaceProps)
     try {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash-lite-tts",
+        model: "gemini-3.1-flash-tts-preview",
         contents: [{ parts: [{ text: `Speak as a warm, gracious human lady with a sweet, melodic tone. Use natural pauses and high/low intonation like a real person: ${text}` }] }],
         config: {
           responseModalities: ['AUDIO' as any],
@@ -542,8 +542,8 @@ export function ChatInterface({ chatId, userId, onNewChat }: ChatInterfaceProps)
 
         try {
           const ai = new GoogleGenAI({ apiKey });
-          // Rotate resiliently through top verified models, prioritizing ultra-reliable gemini-2.5-flash
-          const modelCandidates = ['gemini-2.5-flash', 'gemini-3.8-flash'];
+          // Rotate resiliently through top models across attempts, prioritizing ultra-fast models with high rate limits
+          const modelCandidates = ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-flash-latest'];
           const modelName = modelCandidates[attempt % modelCandidates.length];
 
           const stream = await ai.models.generateContentStream({
@@ -665,7 +665,7 @@ ${customFacts || `Nefron Audio Architecture Knowledge Base:
           if (history.length <= 2) {
             try {
               const titleGen = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-3.1-flash-lite',
                 contents: [{ role: 'user', parts: [{ text: `Generate a very short, creative title (max 4 words) for a chat that starts with this message: "${history[history.length - 1].content}". Respond ONLY with the title text, no quotes or punctuation.` }] }],
               });
               const newTitle = titleGen.text?.trim() || history[history.length - 1].content.slice(0, 24).trim();
@@ -683,7 +683,7 @@ ${customFacts || `Nefron Audio Architecture Knowledge Base:
           // Generate suggested follow-up questions (safely wrapped)
           try {
             const followUpsGen = await ai.models.generateContent({
-              model: 'gemini-2.5-flash',
+              model: 'gemini-3.1-flash-lite',
               contents: [{ role: 'user', parts: [{ text: `Based on this assistant response: "${fullResponse}", suggest 3 short, relevant follow-up questions the user could ask next. Return ONLY a JSON array of objects with 'label' (very short 2-4 word summary with a relevant emoji at the start) and 'text' (the full question). Example: [{"label": "💰 Financial Model", "text": "Can you explain the ROI?"}]` }] }],
               config: {
                 responseMimeType: 'application/json'
@@ -701,13 +701,12 @@ ${customFacts || `Nefron Audio Architecture Knowledge Base:
           break; // Response completed successfully!
         } catch (attemptErr: any) {
           lastError = attemptErr;
-          const isQuota = geminiManager.isSpecificallyQuota(attemptErr);
+          const isQuota = geminiManager.isQuotaError(attemptErr);
           if (isQuota) {
-            geminiManager.markExhausted(apiKey, true);
-            console.warn(`Key quota exhausted (attempt ${attempt + 1}/${maxAttempts}): ${attemptErr?.message || 'Quota/rate-limit'}`);
+            geminiManager.markExhausted(apiKey);
+            console.warn(`Key rotation triggered (attempt ${attempt + 1}/${maxAttempts}): ${attemptErr?.message || 'Quota/rate-limit'}`);
           } else {
-            geminiManager.markExhausted(apiKey, false);
-            console.warn(`Attempt ${attempt + 1} transient error, cycling:`, attemptErr?.message || attemptErr);
+            console.warn(`Attempt ${attempt + 1} failed, cycling to next key:`, attemptErr?.message || attemptErr);
           }
         }
       }

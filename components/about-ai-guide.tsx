@@ -239,7 +239,7 @@ export function AboutAiGuide({ isPageLoaded = true }: { isPageLoaded?: boolean }
       const ai = new GoogleGenAI({ apiKey });
       
       const session = await ai.live.connect({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.1-flash-live-preview",
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {

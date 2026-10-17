@@ -427,17 +427,17 @@ class GeminiManager {
       let response;
       try {
         response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.1-flash-lite',
           contents: prompt,
           config: {
             maxOutputTokens: 5,
             temperature: 0.1,
           }
         });
-      } catch (flashErr) {
-        // Fallback to gemini-3.8-flash if 2.5-flash is temporarily busy
+      } catch (liteErr) {
+        // Fallback to flash-latest if lite is unavailable
         response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+          model: 'gemini-flash-latest',
           contents: prompt,
           config: {
             maxOutputTokens: 5,
@@ -468,7 +468,7 @@ class GeminiManager {
     } catch (err: any) {
       const latencyMs = Date.now() - startTime;
       const errMsg = err?.message || err?.toString() || 'Unknown error';
-      const isQuota = this.isSpecificallyQuota(err);
+      const isQuota = this.isQuotaError(err);
       
       if (isQuota) {
         this.markExhausted(key, false);

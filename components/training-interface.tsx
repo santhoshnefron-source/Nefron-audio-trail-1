@@ -498,7 +498,7 @@ All training conversations in this zone are restricted to your email and saved f
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-flash-latest',
         contents: messagesForAI,
         config: {
           systemInstruction: `You are the ultimate Nefron AI Training Representative and Knowledge Core Database Manager. You have comprehensive, up-to-date knowledge of global affairs, economics, tech, and marketing trends.
@@ -600,10 +600,9 @@ Guidelines:
     } catch (error: any) {
       console.error("Recursive chat failure:", error);
       if (geminiManager.isQuotaError(error)) {
-        const isPermanent = geminiManager.isSpecificallyQuota(error);
-        geminiManager.markExhausted(apiKey, isPermanent);
+        geminiManager.markExhausted(apiKey);
         if (retryCount < geminiManager.getTotalKeysCount()) {
-          setAiThinkingSteps(prev => [...prev, `[ERR] Key rotated. Moving to next core unit...`]);
+          setAiThinkingSteps(prev => [...prev, `[ERR] Key exhausted. Rotating to fresh core unit...`]);
           return executeChatAndTools(messagesForAI, retryCount + 1);
         }
       }
