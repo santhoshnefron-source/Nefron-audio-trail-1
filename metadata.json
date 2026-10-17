@@ -1,0 +1,10 @@
+{
+  "name": "Remix copy 1",
+  "description": "Strategic Investment Representative for Nefron Audio, providing real-time intelligence and visionary insights.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

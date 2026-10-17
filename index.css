@@ -1,0 +1,397 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+/* UI Hardening: Prevent selection, highlighting, tap-highlights globally */
+* {
+  -webkit-touch-callout: none; /* Disable iOS callouts */
+  -webkit-user-select: none;   /* Disable selection in Webkit */
+  -khtml-user-select: none;    /* Disable selection in Konqueror */
+  -moz-user-select: none;      /* Disable selection in Firefox */
+  -ms-user-select: none;       /* Disable selection in IE/Edge */
+  user-select: none;           /* Disable selection */
+  -webkit-tap-highlight-color: transparent; /* Disable tap highlight */
+}
+
+/* Allow selection only on explicit inputs where necessary, but we might want to override even that */
+input, textarea {
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-headline: "Outfit", "Inter", sans-serif;
+  
+  --color-cyan-glow: var(--cyan-glow);
+  --color-teal-deep: var(--teal-deep);
+  --color-electric-green: var(--electric-green);
+  --color-electric-blue: var(--electric-blue);
+  --color-black-deep: var(--black-deep);
+  --color-gray-dark: var(--gray-dark);
+  --color-cyan-bright: var(--cyan-bright);
+  --color-cyan-dim: var(--cyan-dim);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+}
+
+@layer utilities {
+  .performance-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+  }
+}
+
+:root {
+  color-scheme: light dark;
+  --black-deep: #0B0C10;
+  --gray-dark: #1F2833;
+  --foreground: #F1F5F9;
+  --muted: #94A3B8;
+  --glow-core: #ffffff;
+  
+  /* Default to Electric Theme */
+  --cyan-glow: #00E5FF;
+  --teal-deep: #007FFF;
+  --electric-green: #39FF14;
+  --electric-blue: #007FFF;
+  --cyan-bright: #00FFFF;
+  --cyan-dim: #00B8D4;
+  --logo-gradient-start: #39FF14;
+  --logo-gradient-mid: #00FFFF;
+  --logo-gradient-end: #007FFF;
+  --glow-color: rgba(57, 255, 20, 0.6);
+  --glow-color-strong: rgba(0, 229, 255, 0.8);
+  --btn-bg-start: #39FF14;
+  --btn-bg-mid: #00FFFF;
+  --btn-bg-end: #007FFF;
+  --btn-text: #0B0C10;
+  --blue-glow: rgba(0, 127, 255, 0.6);
+}
+
+/* Purple Theme (Default) */
+[data-color-theme="purple"] {
+  --cyan-glow: #8B5CF6;
+  --teal-deep: #3B82F6;
+  --electric-green: #C084FC;
+  --electric-blue: #3B82F6;
+  --cyan-bright: #C084FC;
+  --cyan-dim: #8B5CF6;
+  --logo-gradient-start: #8B5CF6;
+  --logo-gradient-mid: #C084FC;
+  --logo-gradient-end: #3B82F6;
+  --glow-color: rgba(139, 92, 246, 0.6);
+  --glow-color-strong: rgba(192, 132, 252, 0.8);
+  --btn-bg-start: #8B5CF6;
+  --btn-bg-mid: #C084FC;
+  --btn-bg-end: #3B82F6;
+  --btn-text: #ffffff;
+  --blue-glow: rgba(59, 130, 246, 0.6);
+}
+
+/* Electric Theme */
+[data-color-theme="electric"] {
+  --cyan-glow: #00E5FF;
+  --teal-deep: #007FFF;
+  --electric-green: #39FF14;
+  --electric-blue: #007FFF;
+  --cyan-bright: #00FFFF;
+  --cyan-dim: #00B8D4;
+  --logo-gradient-start: #39FF14;
+  --logo-gradient-mid: #00FFFF;
+  --logo-gradient-end: #007FFF;
+  --glow-color: rgba(57, 255, 20, 0.6);
+  --glow-color-strong: rgba(0, 229, 255, 0.8);
+  --btn-bg-start: #39FF14;
+  --btn-bg-mid: #00FFFF;
+  --btn-bg-end: #007FFF;
+  --btn-text: #0B0C10;
+  --blue-glow: rgba(0, 127, 255, 0.6);
+}
+
+/* Golden Theme */
+[data-color-theme="golden"] {
+  --cyan-glow: #C58350;
+  --teal-deep: #DDA15E;
+  --electric-green: #D8831A;
+  --electric-blue: #C58350;
+  --cyan-bright: #FAF6EE;
+  --cyan-dim: #D19D6B;
+  --logo-gradient-start: #C58350;
+  --logo-gradient-mid: #D8831A;
+  --logo-gradient-end: #8C5325;
+  --glow-color: rgba(197, 131, 80, 0.4);
+  --glow-color-strong: rgba(216, 131, 26, 0.5);
+  --btn-bg-start: #C58350;
+  --btn-bg-mid: #D8831A;
+  --btn-bg-end: #8C5325;
+  --btn-text: #ffffff;
+  --blue-glow: rgba(197, 131, 80, 0.3);
+}
+
+.light {
+  --black-deep: #F1F5F9;
+  --gray-dark: #E2E8F0;
+  --foreground: #1E293B;
+  --muted: #475569;
+  --glow-core: rgba(255, 255, 255, 0.3);
+  --cyan-bright: #0F172A;
+  --cyan-dim: #334155;
+}
+
+.light[data-color-theme="purple"] {
+  --electric-blue: #4F46E5;
+  --electric-green: #9333EA;
+  --logo-gradient-start: #6D28D9;
+  --logo-gradient-mid: #9333EA;
+  --logo-gradient-end: #2563EB;
+  --glow-color: rgba(139, 92, 246, 0.15);
+  --glow-color-strong: rgba(192, 132, 252, 0.25);
+  --blue-glow: rgba(59, 130, 246, 0.1);
+}
+
+.light[data-color-theme="electric"] {
+  --electric-blue: #1D4ED8;
+  --electric-green: #16A34A;
+  --logo-gradient-start: #16A34A;
+  --logo-gradient-mid: #0891B2;
+  --logo-gradient-end: #1D4ED8;
+  --glow-color: rgba(57, 255, 20, 0.15);
+  --glow-color-strong: rgba(0, 229, 255, 0.25);
+  --blue-glow: rgba(0, 127, 255, 0.1);
+}
+
+.light[data-color-theme="golden"] {
+  --black-deep: #FAF6EE;
+  --gray-dark: #EDE4D3;
+  --foreground: #4E3F30;
+  --muted: #8E7865;
+  --glow-core: rgba(216, 131, 26, 0.15);
+  
+  --cyan-glow: #C58350;
+  --teal-deep: #DDA15E;
+  --electric-green: #D8831A;
+  --electric-blue: #9E6B43;
+  --cyan-bright: #FAF6EE;
+  --cyan-dim: #D19D6B;
+  --logo-gradient-start: #9E6B43;
+  --logo-gradient-mid: #D8831A;
+  --logo-gradient-end: #754B2A;
+  --glow-color: rgba(158, 107, 67, 0.1);
+  --glow-color-strong: rgba(216, 131, 26, 0.15);
+  --btn-bg-start: #D3881C;
+  --btn-bg-mid: #D8831A;
+  --btn-bg-end: #B77516;
+  --btn-text: #3D2E1F;
+  --blue-glow: rgba(158, 107, 67, 0.08);
+}
+
+@layer base {
+  .font-thin {
+    font-weight: 100;
+  }
+  
+  .neon-glow {
+    filter: drop-shadow(0 0 12px var(--glow-color));
+    will-change: filter;
+  }
+
+  .light .neon-glow {
+    filter: drop-shadow(0 0 4px var(--glow-color));
+    will-change: filter;
+  }
+  
+  .neon-glow-strong {
+    filter: drop-shadow(0 0 20px var(--glow-color-strong));
+    will-change: filter;
+  }
+
+  .light .neon-glow-strong {
+    filter: drop-shadow(0 0 8px var(--glow-color-strong));
+    will-change: filter;
+  }
+
+  .neon-glow-intense {
+    filter: drop-shadow(0 0 10px var(--glow-core)) drop-shadow(0 0 20px var(--glow-color)) drop-shadow(0 0 40px var(--glow-color-strong)) drop-shadow(0 0 60px var(--glow-color));
+    will-change: filter;
+  }
+
+  .neon-glow-white {
+    filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 15px #fff);
+    will-change: filter;
+  }
+
+  /* Themed Scrollbars */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--black-deep);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--gray-dark);
+    border-radius: 10px;
+    border: 2px solid var(--black-deep);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--logo-gradient-mid);
+  }
+
+  /* Global Prose Overrides */
+  .prose {
+    --tw-prose-body: var(--foreground);
+    --tw-prose-headings: var(--foreground);
+    --tw-prose-lead: var(--muted);
+    --tw-prose-links: var(--electric-blue);
+    --tw-prose-bold: var(--foreground);
+    --tw-prose-counters: var(--muted);
+    --tw-prose-bullets: var(--muted);
+    --tw-prose-hr: var(--gray-dark);
+    --tw-prose-quotes: var(--foreground);
+    --tw-prose-quote-borders: var(--electric-blue);
+    --tw-prose-captions: var(--muted);
+    --tw-prose-code: var(--electric-blue);
+    --tw-prose-pre-code: var(--electric-blue);
+    --tw-prose-pre-bg: var(--black-deep);
+    --tw-prose-th-borders: var(--gray-dark);
+    --tw-prose-td-borders: var(--gray-dark);
+  }
+
+  /* Highlighted pills inside chatbot messages (like backtick inline code blocks) */
+  .prose code {
+    padding: 3px 6px !important;
+    border-radius: 6px !important;
+    font-family: var(--font-sans) !important; /* Elegant matching sans font for keywords */
+    font-size: 0.9em !important;
+    font-weight: 600 !important;
+  }
+
+  /* Theme-specific custom styles for inline code */
+  .light[data-color-theme="golden"] .prose code {
+    background-color: #F4EADA !important;
+    color: #8C5D3A !important;
+  }
+
+  [data-color-theme="golden"] .prose code {
+    background-color: #2F2922 !important;
+    color: #F3B02C !important;
+  }
+
+  /* For the chatbot answers: slightly larger and elegant styled text */
+  .chatbot-prose {
+    font-size: 0.90rem !important; /* Elegant 14.4px - raised slightly per request */
+    line-height: 2.1 !important;
+  }
+  
+  .chatbot-prose p {
+    font-size: 0.90rem !important;
+    line-height: 2.1 !important;
+    margin-top: 0.625rem !important;
+    margin-bottom: 0.625rem !important;
+  }
+  
+  .chatbot-prose li {
+    font-size: 0.90rem !important;
+    line-height: 2.1 !important;
+    margin-top: 0.375rem !important;
+    margin-bottom: 0.375rem !important;
+  }
+
+  .chatbot-prose h1, .chatbot-prose h2, .chatbot-prose h3, .chatbot-prose h4 {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    margin-top: 1.25rem !important;
+    margin-bottom: 0.625rem !important;
+  }
+
+  /* Beautiful highlight pills for bold text & inline code inside chat replies */
+  .chatbot-prose strong, .chatbot-prose code {
+    background-color: #F6EBE0 !important; /* Soft warm beige highlight background */
+    color: #92582A !important;             /* Cozy dark brown text color */
+    padding: 1px 5px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-style: normal !important;
+    box-shadow: 0 1px 2px rgba(146, 88, 42, 0.05) !important;
+    display: inline !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  html:not(.light) .chatbot-prose strong, 
+  html:not(.light) .chatbot-prose code,
+  .dark .chatbot-prose strong, 
+  .dark .chatbot-prose code {
+    background-color: #382A1B !important; /* Dark golden-caramel highlight box */
+    color: #F8BC70 !important;             /* High contrast golden text */
+    border: 1px solid rgba(248, 188, 112, 0.15) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  /* Beautiful wavy underlines for emphasized text in replies (e.g. Oppenheimer) */
+  .chatbot-prose em {
+    font-style: normal !important;
+    font-weight: 600 !important;
+    color: #92582A !important;
+    text-decoration: underline wavy #D8831A !important;
+    text-underline-offset: 2.5px !important;
+    padding: 0 1px !important;
+  }
+
+  html:not(.light) .chatbot-prose em,
+  .dark .chatbot-prose em {
+    color: #FBC176 !important;
+    text-decoration: underline wavy #D8831A !important;
+  }
+
+  /* KaTeX mathematical formula styling with prominent sizing and comfortable vertical gaps */
+  .chatbot-prose .katex-display {
+    font-size: 1.32rem !important; /* Significantly bigger formula font size */
+    margin-top: 1.9rem !important;  /* Gap above the mathematical formula */
+    margin-bottom: 1.9rem !important; /* Gap below the mathematical formula */
+    padding: 1rem 1.25rem !important;
+    display: block !important;
+    overflow-x: auto !important;
+    text-align: center !important;
+    background-color: rgba(216, 131, 26, 0.05) !important; /* Warm golden tint background */
+    border-radius: 12px !important;
+    line-height: 1.45 !important;
+    border: 1px dashed rgba(216, 131, 26, 0.2) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .chatbot-prose .katex {
+    font-size: 1.15em !important; /* Bigger inline formulas as well */
+    line-height: 1.25 !important;
+  }
+  
+  /* For the About Nefron page content: elegant typography sizing matching the images */
+  .about-page-content .text-lg {
+    font-size: 0.90rem !important; /* 14.4px - raised slightly for optimal readability */
+    line-height: 1.675 !important;
+  }
+  
+  .about-page-content .text-xl {
+    font-size: 1.05rem !important; /* Elegant subtitle headers */
+    line-height: 1.5 !important;
+  }
+  
+  .about-page-content .text-2xl {
+    font-size: 1.25rem !important; /* Premium section headings */
+    letter-spacing: 0.05em !important;
+    line-height: 1.4 !important;
+  }
+  
+  .about-page-content .text-3xl {
+    font-size: 1.45rem !important; /* Large titles */
+    letter-spacing: 0.1em !important;
+    line-height: 1.4 !important;
+  }
+
+  .about-page-content .text-sm {
+    font-size: 0.8125rem !important; /* 13px */
+  }
+}

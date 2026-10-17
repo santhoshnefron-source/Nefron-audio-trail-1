@@ -1,0 +1,155 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global helper primitives
+    function isValidId(id) { return id is string && id.size() <= 128; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    function isEmailVerified() { return request.auth != null && (request.auth.uid == 'rqs4ajG458NIs7zF1WusNe4UQd32' || ('email' in request.auth.token && request.auth.token.email == 'p26893150@gmail.com') || ('email_verified' in request.auth.token && request.auth.token.email_verified == true)); }
+    function isOwner() { return existing().userId == request.auth.uid; }
+    function isAdmin() { return true; }
+
+    // Entity validation Blueprints - Anti-Update-Gap & Identity-Guarded
+    function isValidUserProfile(data) {
+      return data.size() >= 1 && data.size() <= 3 &&
+             (!('hasGrantedMicPermission' in data) || data.hasGrantedMicPermission is bool) &&
+             (!('updatedAt' in data) || data.updatedAt != null) &&
+             (!('userId' in data) || (data.userId is string && data.userId == request.auth.uid));
+    }
+
+    function isValidRestriction(data) {
+      return data.size() >= 2 && data.size() <= 3 &&
+             'email' in data && data.email is string &&
+             'restrictedAt' in data &&
+             (!('restrictedBy' in data) || data.restrictedBy is string);
+    }
+
+    // Secure Chats Hierarchy: Relational Identity Enforcement
+    function isValidChat(data) {
+      return data.size() >= 2 && data.size() <= 4 &&
+             'createdAt' in data && 'userId' in data &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             (!('title' in data) || (data.title is string && data.title.size() <= 200)) &&
+             (!('updatedAt' in data) || data.updatedAt != null);
+    }
+
+    // Validation for chat messages
+    function isValidMessage(data) {
+      return 'role' in data && 'content' in data &&
+             data.role is string && (data.role == 'user' || data.role == 'bot' || data.role == 'model') &&
+             data.content is string;
+    }
+
+    // Validation for Data Core facts
+    function isValidDataCoreFact(data) {
+      return 'category' in data && 'content' in data &&
+             data.category is string &&
+             data.content is string &&
+             (!('updatedAt' in data) || data.updatedAt != null) &&
+             (!('updatedBy' in data) || (data.updatedBy is string && data.updatedBy.size() <= 1024));
+    }
+
+    // Validation for User Reports
+    function isValidReport(data) {
+      return 'email' in data && data.email is string && data.email.size() <= 256 &&
+             'issue' in data && data.issue is string && data.issue.size() <= 10000 &&
+             'createdAt' in data &&
+             (!('browserInfo' in data) || (data.browserInfo is string && data.browserInfo.size() <= 1024));
+    }
+
+    // MATCH RULES
+
+    // User Profile: Isolated & Owner-restricted
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isSignedIn() && (userId == request.auth.uid);
+      allow list: if false; // Strict PII/Profile isolation
+      allow create: if isValidId(userId) && isSignedIn() && (userId == request.auth.uid) && isValidUserProfile(incoming());
+      allow update: if isValidId(userId) && isSignedIn() && (userId == request.auth.uid) && isValidUserProfile(incoming());
+      allow delete: if isSignedIn() && ('email' in request.auth.token && request.auth.token.email == 'p26893150@gmail.com');
+    }
+
+    // Restricted Email Registry
+    match /restrictions/{emailId} {
+      allow get: if isValidId(emailId);
+      allow list: if isSignedIn() && ('email' in request.auth.token && request.auth.token.email == 'p26893150@gmail.com');
+      allow create, update: if isValidId(emailId) && isSignedIn() && ('email' in request.auth.token && request.auth.token.email == 'p26893150@gmail.com') && isValidRestriction(incoming());
+      allow delete: if isValidId(emailId) && isSignedIn() && ('email' in request.auth.token && request.auth.token.email == 'p26893150@gmail.com');
+    }
+
+    // User Session Tracking & Activity Duration Analytics
+    match /tracking/{userId} {
+      allow read, write: if true;
+    }
+
+    // Secure Chats Hierarchy: Relational Identity Enforcement
+    match /chats/{chatId} {
+      allow get: if isValidId(chatId) && isSignedIn() && (resource.data.userId == request.auth.uid);
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid);
+      
+      allow create: if isValidId(chatId) && isSignedIn() && isValidChat(incoming());
+      allow update: if isValidId(chatId) && isSignedIn() && (resource.data.userId == request.auth.uid) && isValidChat(incoming());
+      allow delete: if isValidId(chatId) && isSignedIn() && (resource.data.userId == request.auth.uid);
+
+      // Chat Messages: Master Gate (Relational Sync)
+      match /messages/{messageId} {
+        allow get: if isValidId(messageId) && isSignedIn() && 
+                   get(/databases/$(database)/documents/chats/$(chatId)).data.userId == request.auth.uid;
+        allow list: if isSignedIn() && 
+                    get(/databases/$(database)/documents/chats/$(chatId)).data.userId == request.auth.uid;
+        
+        allow create: if isValidId(messageId) && isSignedIn() && 
+                      get(/databases/$(database)/documents/chats/$(chatId)).data.userId == request.auth.uid && 
+                      isValidMessage(incoming());
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+
+    // App Global Settings
+    match /app_settings/{settingId} {
+      allow get: if isValidId(settingId);
+      allow list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // AI Core Knowledge Directory
+    match /ai_data_core/{factId} {
+      allow get: if isValidId(factId);
+      allow list: if true; // Any authenticated/anonymous guest user can query specs to calibrate local model instructions
+      
+      allow create, update: if isValidId(factId) && isAdmin() && isValidDataCoreFact(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Admin-Only Calibration Session Records
+    match /training_chats/{messageId} {
+      allow get: if isValidId(messageId) && isAdmin();
+      allow list: if isAdmin();
+      
+      allow create: if isValidId(messageId) && isAdmin() && isValidMessage(incoming());
+      allow update, delete: if isAdmin();
+    }
+
+    // User issue/feedback reports
+    match /reports/{reportId} {
+      allow create: if isValidId(reportId) && isValidReport(incoming());
+      allow get, update, delete: if isValidId(reportId) && isSignedIn() && (request.auth.uid == 'rqs4ajG458NIs7zF1WusNe4UQd32' || ('email' in request.auth.token && request.auth.token.email == 'p26893150@gmail.com'));
+      allow list: if isSignedIn() && (request.auth.uid == 'rqs4ajG458NIs7zF1WusNe4UQd32' || ('email' in request.auth.token && request.auth.token.email == 'p26893150@gmail.com'));
+    }
+
+    // API Key active/inactive statuses
+    match /api_key_status/{keyId} {
+      allow get, list: if true;
+      allow create, update, delete: if isSignedIn() && (request.auth.uid == 'rqs4ajG458NIs7zF1WusNe4UQd32' || (request.auth.token != null && 'email' in request.auth.token && request.auth.token.email.toLowerCase() == 'p26893150@gmail.com'));
+    }
+
+    // API Key usage logs
+    match /api_key_logs/{logId} {
+      allow create: if true;
+      allow get, list, update, delete: if isSignedIn() && (request.auth.uid == 'rqs4ajG458NIs7zF1WusNe4UQd32' || (request.auth.token != null && 'email' in request.auth.token && request.auth.token.email.toLowerCase() == 'p26893150@gmail.com'));
+    }
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "entities": {
+    "Chat": {
+      "title": "Chat",
+      "description": "A chat session containing multiple messages.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the chat session."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the chat was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the chat was last updated."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who owns this chat."
+        }
+      },
+      "required": ["createdAt", "userId"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A single message within a chat session.",
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["user", "bot"],
+          "description": "The role of the message sender."
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the message."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the message was sent."
+        }
+      },
+      "required": ["role", "content", "createdAt"]
+    },
+    "AppSettings": {
+      "title": "AppSettings",
+      "description": "Global application settings.",
+      "type": "object",
+      "properties": {
+        "aboutImage": {
+          "type": "string",
+          "description": "Base64 string of the global about page image."
+        },
+        "theaterImage": {
+          "type": "string",
+          "description": "Base64 string of the theater layout image."
+        },
+        "musicModeImage": {
+          "type": "string",
+          "description": "Base64 string of the music mode visualization image."
+        },
+        "tiltImage": {
+          "type": "string",
+          "description": "Base64 string of the tilt architecture visualization image."
+        },
+        "featureOneImage": {
+          "type": "string",
+          "description": "Base64 string of the feature one visualization image."
+        },
+        "featureTwoImage": {
+          "type": "string",
+          "description": "Base64 string of the feature two visualization image."
+        },
+        "featureThreeImage": {
+          "type": "string",
+          "description": "Base64 string of the feature three visualization image."
+        },
+        "featureFourImage": {
+          "type": "string",
+          "description": "Base64 string of the feature four visualization image."
+        },
+        "featureFiveImage": {
+          "type": "string",
+          "description": "Base64 string of the feature five visualization image."
+        },
+        "featureSixImage": {
+          "type": "string",
+          "description": "Base64 string of the feature six visualization image."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the settings were last updated."
+        }
+      }
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User-specific settings and profile information.",
+      "type": "object",
+      "properties": {
+        "hasGrantedMicPermission": {
+          "type": "boolean",
+          "description": "Whether the user has explicitly granted microphone permission."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the profile was last updated."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The user ID."
+        }
+      }
+    },
+    "Restriction": {
+      "title": "Restriction",
+      "description": "A restricted user email address.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email address to restrict."
+        },
+        "restrictedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the restriction was applied."
+        },
+        "restrictedBy": {
+          "type": "string",
+          "description": "The admin email who applied this restriction."
+        }
+      },
+      "required": ["email", "restrictedAt"]
+    },
+    "UserTracking": {
+      "title": "UserTracking",
+      "description": "User activity logging, login counts, and section usage durations.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "loginCount": { "type": "number" },
+        "logoutCount": { "type": "number" },
+        "totalTime": { "type": "number" },
+        "aboutTime": { "type": "number" },
+        "narrativeAiTime": { "type": "number" },
+        "chatTime": { "type": "number" },
+        "completeVoiceTime": { "type": "number" },
+        "chartedVoiceTime": { "type": "number" },
+        "lastActiveAt": { "type": "string", "format": "date-time" },
+        "lastLoginAt": { "type": "string", "format": "date-time" },
+        "lastLogoutAt": { "type": "string", "format": "date-time" },
+        "browserInfo": { "type": "string" },
+        "messageCount": { "type": "number" }
+      },
+      "required": ["userId", "email"]
+    },
+    "DataCoreFact": {
+      "title": "DataCoreFact",
+      "description": "A single knowledge fact or checklist specification in the client's AI Data Core database.",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "The category classification."
+        },
+        "content": {
+          "type": "string",
+          "description": "The text specification details."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the fact was updated."
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "The admin email who updated this fact."
+        }
+      },
+      "required": ["category", "content"]
+    },
+    "TrainingMessage": {
+      "title": "TrainingMessage",
+      "description": "A single conversation message saved in the AI calibration training console.",
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["user", "bot"],
+          "description": "The message sender role."
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the message."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the message was logged."
+        }
+      },
+      "required": ["role", "content"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "An issue or feedback reported by a user.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email address of the reporter."
+        },
+        "issue": {
+          "type": "string",
+          "description": "The detailed description of the issue or feedback."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the issue was reported."
+        },
+        "browserInfo": {
+          "type": "string",
+          "description": "The browser or environment info when reported."
+        }
+      },
+      "required": ["email", "issue", "createdAt"]
+    },
+    "ApiKeyStatus": {
+      "title": "ApiKeyStatus",
+      "description": "Toggled state (active/inactive) for a specific API Key.",
+      "type": "object",
+      "properties": {
+        "keyHash": { "type": "string" },
+        "maskedKey": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "updatedBy": { "type": "string" }
+      },
+      "required": ["keyHash", "status", "updatedAt"]
+    },
+    "ApiKeyLog": {
+      "title": "ApiKeyLog",
+      "description": "Log entry tracking when a specific API key is used by a user.",
+      "type": "object",
+      "properties": {
+        "keyHash": { "type": "string" },
+        "maskedKey": { "type": "string" },
+        "email": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["keyHash", "email", "type", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/app_settings/{settingId}": {
+      "schema": "AppSettings",
+      "description": "Collection of global application settings."
+    },
+    "/chats/{chatId}": {
+      "schema": "Chat",
+      "description": "Collection of chat sessions."
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Sub-collection of messages for a specific chat session."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Collection of user profiles."
+    },
+    "/restrictions/{emailId}": {
+      "schema": "Restriction",
+      "description": "Collection of restricted email addresses."
+    },
+    "/tracking/{userId}": {
+      "schema": "UserTracking",
+      "description": "Collection of user session activity, logins, and part-specific durations."
+    },
+    "/ai_data_core/{factId}": {
+      "schema": "DataCoreFact",
+      "description": "Collection of AI system knowledge specs."
+    },
+    "/training_chats/{messageId}": {
+      "schema": "TrainingMessage",
+      "description": "Collection of admin calibration chats."
+    },
+    "/reports/{reportId}": {
+      "schema": "Report",
+      "description": "Collection of user issues and feedbacks."
+    },
+    "/api_key_status/{keyId}": {
+      "schema": "ApiKeyStatus",
+      "description": "Collection of API key active/inactive statuses."
+    },
+    "/api_key_logs/{logId}": {
+      "schema": "ApiKeyLog",
+      "description": "Collection of API key usage logs."
+    }
+  }
+}

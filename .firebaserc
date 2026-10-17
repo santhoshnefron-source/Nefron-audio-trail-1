@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "gen-lang-client-0953547135"
+  },
+  "targets": {
+    "gen-lang-client-0953547135": {
+      "firestore": {
+        "remixed-target": [
+          "ai-studio-5a5014b3-b2a9-41be-94c0-c71ed52103b4"
+        ],
+        "default-target": [
+          "(default)"
+        ]
+      }
+    }
+  }
+}
